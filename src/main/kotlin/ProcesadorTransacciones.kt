@@ -33,14 +33,16 @@ class ProcesadorTransacciones {
         transacciones: List<Transaccion>,
         transformacion: (Double) -> Double,
     ): List<Double> {
-        TODO("Implementar: Debe aplicar la función de transformación a cada monto")
+        // Mapeamos cada transacción extrayendo su monto y aplicándole la función de transformación
+        return transacciones.map { transformacion(it.monto) }
     }
 
     fun <T> procesarCon(
         transacciones: List<Transaccion>,
         procesador: (Transaccion) -> T,
     ): List<T> {
-        TODO("Implementar: Debe procesar cada transacción con la función dada")
+        // Transformamos cada objeto Transaccion usando la función genérica 'procesador'
+        return transacciones.map { procesador(it) }
     }
 
     // Parte B: Funciones de Filtrado como Parámetros
@@ -49,14 +51,18 @@ class ProcesadorTransacciones {
         transacciones: List<Transaccion>,
         predicado: (Transaccion) -> Boolean,
     ): List<Transaccion> {
-        TODO("Implementar: Debe filtrar transacciones usando el predicado")
+        // Filtramos las transacciones que cumplan con la condición dada por el predicado
+        return transacciones.filter { predicado(it) }
     }
 
     fun filtrarConMultiplesCriterios(
         transacciones: List<Transaccion>,
         criterios: List<(Transaccion) -> Boolean>,
     ): List<Transaccion> {
-        TODO("Implementar: Debe filtrar transacciones que cumplan TODOS los criterios")
+        // Filtramos asegurándonos de que CADA transacción cumpla con TODOS los criterios de la lista
+        return transacciones.filter { transaccion ->
+            criterios.all { criterio -> criterio(transaccion) }
+        }
     }
 
     // Parte C: Funciones de Agregación como Parámetros
@@ -66,7 +72,10 @@ class ProcesadorTransacciones {
         valorInicial: T,
         agregador: (T, Transaccion) -> T,
     ): T {
-        TODO("Implementar: Debe agregar valores usando la función agregadora")
+        // 'fold' acumula un valor partiendo de un estado inicial usando la función 'agregador'
+        return transacciones.fold(valorInicial) { acumulador, transaccion ->
+            agregador(acumulador, transaccion)
+        }
     }
 
     // Parte D: Composición de Funciones
@@ -78,29 +87,21 @@ class ProcesadorTransacciones {
         transformacion: (Transaccion) -> Double,
         agregacion: (Double, Double) -> Double,
     ): Double {
-        TODO(
-            """
-            Implementar pipeline:
-            1) Aplicar filtro1
-            2) Aplicar filtro2
-            3) Transformar cada transacción a Double
-            4) Agregar todos los valores con la función de agregación (inicial: 0.0)
-        """,
-        )
+        return transacciones
+            .filter(filtro1)                                // 1) Aplicar filtro1
+            .filter(filtro2)                                // 2) Aplicar filtro2
+            .map(transformacion)                            // 3) Transformar a Double
+            .fold(0.0) { acc, valor -> agregacion(acc, valor) } // 4) Agregar con valor inicial 0.0
     }
 
     fun procesarConConfiguracion(
         transacciones: List<Transaccion>,
         config: ConfiguracionProcesamiento,
     ): List<String> {
-        TODO(
-            """
-            Implementar:
-            1) Filtrar usando config.filtro
-            2) Transformar usando config.transformacion
-            3) Formatear usando config.formateo
-        """,
-        )
+        return transacciones
+            .filter(config.filtro)             // 1) Filtrar usando config.filtro
+            .map(config.transformacion)        // 2) Transformar usando config.transformacion
+            .map(config.formateo)              // 3) Formatear usando config.formateo
     }
 
     fun procesarConEventos(
@@ -108,13 +109,13 @@ class ProcesadorTransacciones {
         onTransaccionProcesada: (Transaccion) -> Unit,
         onTransaccionRechazada: (Transaccion) -> Unit,
     ) {
-        TODO(
-            """
-            Implementar:
-            - Para transacciones PROCESADAS: ejecutar onTransaccionProcesada
-            - Para transacciones RECHAZADAS: ejecutar onTransaccionRechazada
-        """,
-        )
+        // Iteramos sobre las transacciones y ejecutamos la acción correspondiente según su estado
+        transacciones.forEach { transaccion ->
+            when (transaccion.estado) {
+                EstadoTransaccion.PROCESADA -> onTransaccionProcesada(transaccion)
+                EstadoTransaccion.RECHAZADA -> onTransaccionRechazada(transaccion)
+                else -> { /* No se hace nada para otros estados (como PENDIENTE) */ }
+            }
+        }
     }
 }
-

@@ -1,10 +1,8 @@
 /**
  * Ejercicio 3: SortBy y Lambdas
- * 
- * Implementa los métodos de esta clase para que pasen todos los tests
+ * * Implementa los métodos de esta clase para que pasen todos los tests
  * del archivo Ejercicio3SortByLambdaTest.kt
- * 
- * IMPORTANTE: No modifiques la firma de los métodos, solo implementa su lógica.
+ * * IMPORTANTE: No modifiques la firma de los métodos, solo implementa su lógica.
  */
 
 data class Empleado(
@@ -16,76 +14,82 @@ data class Empleado(
     val evaluacionDesempeno: Double, // 0.0 a 5.0
     val proyectosCompletados: Int
 )
+
 class SistemaRanking {
-    
+
     // Parte A: Ordenamiento Simple con sortBy
-    
+
     fun ordenarPorSalario(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar empleados por salario de menor a mayor")
+        return empleados.sortedBy { it.salario }
     }
-    
+
     fun ordenarPorExperienciaDesc(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar por años de experiencia de mayor a menor")
+        return empleados.sortedByDescending { it.anosExperiencia }
     }
-    
+
     fun ordenarPorNombre(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar alfabéticamente por nombre")
+        return empleados.sortedBy { it.nombre }
     }
-    
+
     // Parte B: Lambdas Complejas
-    
+
     fun ordenarPorEficiencia(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar por eficiencia (proyectosCompletados / añosExperiencia) descendente")
+        return empleados.sortedByDescending { it.proyectosCompletados.toDouble() / it.anosExperiencia }
     }
-    
+
     fun ordenarPorPuntuacionCompuesta(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar por puntuación = (evaluacionDesempeño * 2) + (proyectosCompletados * 0.1) descendente")
+        // Ordena por puntuación compuesta descendente. En caso de empate estricto (11.0),
+        // desempata por el nombre alfabéticamente para colocar a Beatriz antes que a Carlos.
+        return empleados.sortedWith(
+            compareByDescending<Empleado> { (it.evaluacionDesempeno * 2) + (it.proyectosCompletados * 0.1) }
+                .thenBy { it.nombre }
+        )
     }
-    
+
     fun ordenarITPrimero(empleados: List<Empleado>): List<Empleado> {
-        TODO("Implementar: Debe ordenar con empleados de IT primero, luego por salario ascendente")
+        return empleados.sortedWith(
+            compareBy<Empleado> { it.departamento != "IT" }.thenBy { it.salario }
+        )
     }
-    
+
     // Parte C: Ordenamiento Múltiple
-    
+
     fun ordenarPorDepartamentoYSalario(empleados: List<Empleado>): List<Empleado> {
-        TODO("""
-            Implementar: Debe ordenar por:
-            1) Departamento alfabéticamente
-            2) Dentro del mismo departamento, por salario descendente
-            3) Si mismo departamento y salario, por experiencia ascendente
-        """)
+        return empleados.sortedWith(
+            compareBy<Empleado> { it.departamento }
+                .thenByDescending { it.salario }
+                .thenBy { it.anosExperiencia }
+        )
     }
-    
+
     fun ordenarSegunSeniority(empleados: List<Empleado>): List<Empleado> {
-        TODO("""
-            Implementar: 
-            - Juniors (experiencia < 5): ordenar por evaluación descendente
-            - Seniors (experiencia >= 5): ordenar por proyectos completados descendente
-            - Mantener juniors antes que seniors en la lista final
-        """)
+        val juniors = empleados.filter { it.anosExperiencia < 5 }
+            .sortedByDescending { it.evaluacionDesempeno }
+
+        val seniors = empleados.filter { it.anosExperiencia >= 5 }
+            .sortedByDescending { it.proyectosCompletados }
+
+        return juniors + seniors
     }
-    
+
     // Parte D: Lambdas como Parámetros de Configuración
-    
+
     fun <T : Comparable<T>> ordenarConEstrategia(
         empleados: List<Empleado>,
         estrategia: (Empleado) -> T
     ): List<Empleado> {
-        TODO("Implementar: Debe ordenar usando la estrategia proporcionada descendentemente")
+        return empleados.sortedByDescending(estrategia)
     }
-    
+
     fun obtenerTopEmpleados(
         empleados: List<Empleado>,
         filtro: (Empleado) -> Boolean,
         ordenamiento: (Empleado) -> Double,
         limite: Int
     ): List<Empleado> {
-        TODO("""
-            Implementar: 
-            1) Filtrar empleados según el predicado
-            2) Ordenar por el criterio dado (descendente)
-            3) Tomar solo los primeros 'limite' empleados
-        """)
+        return empleados
+            .filter(filtro)
+            .sortedByDescending(ordenamiento)
+            .take(limite)
     }
 }
